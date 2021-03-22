@@ -1,0 +1,35 @@
+DRONE_RPC_PROTO={{ drone_rpc_proto | default("https") }}
+DRONE_RPC_HOST={{ drone_rpc_host }}
+DRONE_RPC_SECRET={{ drone_rpc_secret }}
+
+DRONE_HTTP_BIND={{ drone_http_bind | default(":19300") }}
+
+DRONE_RUNNER_NAME={{ drone_runner_name | default(inventory_hostname) }}
+DRONE_RUNNER_MAX_PROCS={{ drone_runner_max_procs | default("4") }}
+DRONE_RUNNER_CAPACITY={{ drone_runner_capacity | default("4") }}
+DRONE_RUNNER_LABELS={{ drone_runner_labels | default("instance:" ~ inventory_hostname) }}
+DRONE_RUNNER_ENVIRON={{ drone_runner_envirion | default("env:production") }}
+DRONE_RUNNER_PATH={{ drone_runner_path | default("/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/sbin:/bin") }}
+{% if drone_limit_repos is defined %}
+DRONE_LIMIT_TRUSTED=true
+DRONE_LIMIT_REPOS={{ drone_limit_repos }}
+{% else %}
+DRONE_LIMIT_TRUSTED=false
+{% endif %}
+DRONE_LIMIT_EVENTS={{ drone_limit_events | default("push,tag,promote,rollback") }}
+
+{% if drone_ui_username is defined and drone_ui_password is defined %}
+DRONE_UI_DISABLE=false
+DRONE_UI_USERNAME={{ drone_ui_username }}
+DRONE_UI_PASSWORD={{ drone_ui_password }}
+{% endif %}
+
+{% if drone_secret_endpoint is defined and drone_secret_token is defined %}
+DRONE_SECRET_PLUGIN_ENDPOINT={{ drone_secret_endpoint }}
+DRONE_SECRET_PLUGIN_TOKEN={{ drone_secret_token }}
+{% endif %}
+
+DRONE_LOG_FILE={{ drone_log_file | default(log_dir ~ '/drone-runner-exec.log') }}
+DRONE_LOG_FILE_MAX_SIZE={{ drone_log_file_max_size | default('50') }}
+DRONE_LOG_FILE_MAX_AGE={{ drone_log_file_max_age | default('30') }}
+DRONE_LOG_FILE_MAX_BACKUPS={{ drone_log_file_max_backups | default('7') }}

@@ -1,0 +1,35 @@
+---
+type: osshelp
+runner_version: v1.0.0-beta.8
+targz_sum: "sha256:19678a85bc9e84aa0850e2db3b0f99a0d23b11920ef082d685c7d5905af5fc43"
+targz_url: https://github.com/drone-runners/drone-runner-exec/releases/download/{{ runner_version }}/drone_runner_exec_linux_amd64.tar.gz
+targz_shasums_url: https://github.com/drone-runners/drone-runner-exec/releases/download/{{ runner_version }}/drone_runner_exec_checksums.txt
+targz_path: /tmp/drone_runner_exec_linux_amd64.tar.gz
+binary_url: https://oss.help/builds/pub/drone/runners/exec/latest/drone-runner-exec
+binary_sum: "sha256:https://oss.help/builds/pub/drone/runners/exec/latest/SHA256SUMS"
+
+service_name: drone-runner-exec
+config_dir: "/etc/{{ service_name }}"
+log_dir: "/var/log/{{ service_name }}"
+config_path: "{{ config_dir }}/config"
+lib_dir: "/var/lib/{{ service_name }}"
+
+systemd_unit: /etc/systemd/system/{{ service_name }}.service
+binary_path: /usr/local/bin/drone-runner-exec
+
+default_user:
+  name: drone
+
+default_sudo_commands:
+  - /usr/bin/docker pull *
+  - /usr/bin/docker service update *
+  - /usr/bin/docker service logs *
+  - /usr/bin/docker service ls *
+  - /usr/bin/docker service ps *
+  - /usr/bin/docker ps *
+  - /usr/bin/docker logs *
+  - /usr/local/bin/docker-compose *
+  - /usr/local/sbin/lxhelper *
+  - /usr/bin/lxc *
+  - /usr/local/bin/minio-client cp *
+  - /bin/sed -i * /usr/local/etc/lxc/*.yml

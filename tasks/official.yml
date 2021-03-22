@@ -1,0 +1,35 @@
+---
+- name: check binary
+  stat:
+    path: "{{ binary_path }}"
+  register: binary_stat
+
+- name: check version
+  copy:
+    content: "{{ runner_version }}"
+    dest: "{{ lib_dir }}/version"
+    owner: "{{ user.name | default(default_user.name) }}"
+  register: runner_version_check
+
+- name: get binary arch  # noqa 503
+  get_url:
+    url: "{{ targz_url }}"
+    dest: "{{ targz_path }}"
+    checksum: "{{ targz_sum }}"
+    mode: 0600
+  when: not binary_stat.stat.exists or runner_version_check.changed
+
+- name: extract binary  # noqa 503
+  unarchive:
+    src: "{{ targz_path }}"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+  when: not binary_stat.stat.exists or runner_version_check.changed
+  notify: restart drone-exec-runner service
+
+- name: remove binary arch  # noqa 503
+  file:
+    dest: "{{ targz_path }}"
+    state: absent
+  when: not binary_stat.stat.exists or runner_version_check.changed

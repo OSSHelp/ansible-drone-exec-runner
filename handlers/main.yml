@@ -1,0 +1,9 @@
+---
+- name: reload drone-exec-runner unit
+  systemd:
+    daemon_reload: yes
+
+- name: restart drone-exec-runner service
+  systemd:
+    name: "{{ service_name }}"
+    state: restarted

@@ -1,0 +1,58 @@
+---
+- name: get user info
+  getent:
+    database: passwd
+    key: "{{ user.name | default(default_user.name) }}"
+  failed_when: false
+
+- name: create user
+  user:
+    name: "{{ user.name | default(default_user.name) }}"
+    comment: "{{ service_name }} service user"
+    home: "{{ lib_dir }}"
+    shell: "/bin/bash"
+    create_home: no
+    system: yes
+  when: getent_passwd is not defined or user.name|default(default_user.name) not in getent_passwd
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name | default(default_user.name) }}"
+    mode: '0700'
+  loop:
+    - "{{ config_dir }}"
+    - "{{ log_dir }}"
+    - "{{ lib_dir }}"
+
+- name: install binary
+  import_tasks: "{{ type }}.yml"
+
+- name: create systemd unit
+  template:
+    src: drone-runner-exec.service.j2
+    dest: "{{ systemd_unit }}"
+  notify:
+    - reload drone-exec-runner unit
+    - restart drone-exec-runner service
+
+- meta: flush_handlers
+
+- name: enable systemd unit
+  systemd:
+    name: "{{ service_name }}"
+    enabled: true
+
+- name: configuration
+  template:
+    src: config.j2
+    dest: "{{ config_path }}"
+  notify: restart drone-exec-runner service
+
+- name: sudoers configuration
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/{{ user.name | default(default_user.name) }}
+    validate: /usr/sbin/visudo -cf %s
+  when: not (sudo_commands is defined and sudo_commands|length == 0)

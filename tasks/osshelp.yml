@@ -1,0 +1,14 @@
+---
+- name: download binary
+  get_url:
+    url: "{{ binary_url }}"
+    dest: "{{ binary_path }}"
+    checksum: "{{ binary_sum }}"
+    mode: 0755
+  notify: restart drone-exec-runner service
+
+- name: create version file
+  copy:
+    content: "osshelp"
+    dest: "{{ lib_dir }}/version"
+    owner: "{{ user.name | default(default_user.name) }}"

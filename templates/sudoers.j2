@@ -1,0 +1,3 @@
+{% for command in sudo_commands | default(default_sudo_commands) %}
+{{ user | default(default_user.name) }} ALL=(root) NOPASSWD: {{ command }}
+{% endfor %}
