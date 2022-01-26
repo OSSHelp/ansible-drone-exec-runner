@@ -28,6 +28,7 @@
 
 - name: install binary
   import_tasks: "{{ type }}.yml"
+  when: not ansible_check_mode
 
 - name: create systemd unit
   template:
